@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Limiting Reactants Visual Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    canvas { background-color: #0f172a; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans p-4 md:p-8">
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <header class="text-center space-y-2">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-blue-400">Limiting Reactant Simulator</h1>
+      <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+        Explore stoichiometric ratios, particle interactions, and mass-to-mole conversions across 5 reactions with Oxygen.
+      </p>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Panel: Controls & Selection -->
+      <div class="lg:col-span-4 bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-5">
+        
+        <!-- Reaction Selection -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select Reaction</label>
+          <select id="reactionSelect" class="w-full bg-slate-900 border border-slate-700 text-slate-100 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="0">1:1 Ratio — C + O₂ → CO₂</option>
+            <option value="1">1:2 Ratio — CH₄ + 2 O₂ → CO₂ + 2 H₂O</option>
+            <option value="2">2:1 Ratio — 2 CO + O₂ → 2 CO₂</option>
+            <option value="3">1:3 Ratio — C₂H₅OH + 3 O₂ → 2 CO₂ + 3 H₂O</option>
+            <option value="4">3:2 Ratio — 3 Fe + 2 O₂ → Fe₃O₄</option>
+          </select>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Input Mode</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700">
+            <button id="modeMolesBtn" class="py-1.5 text-xs font-semibold rounded-md bg-blue-600 text-white transition">Moles (mol)</button>
+            <button id="modeGramsBtn" class="py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition">Mass (grams)</button>
+          </div>
+        </div>
+
+        <!-- Reactant A Controls -->
+        <div class="space-y-2 pt-2 border-t border-slate-700">
+          <div class="flex justify-between items-center">
+            <label id="labelA" class="text-sm font-semibold text-blue-300">Reactant A</label>
+            <span id="unitA" class="text-xs text-slate-400">Moles</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <input type="range" id="sliderA" min="1" max="10" step="0.5" value="3" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+            <input type="number" id="inputA" value="3" min="0.1" max="500" step="0.5" class="w-20 bg-slate-900 border border-slate-700 text-center text-sm rounded-md p-1 text-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <!-- Reactant B (O2) Controls -->
+        <div class="space-y-2 pt-2 border-t border-slate-700">
+          <div class="flex justify-between items-center">
+            <label class="text-sm font-semibold text-red-300">Oxygen (O₂)</label>
+            <span id="unitB" class="text-xs text-slate-400">Moles</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <input type="range" id="sliderB" min="1" max="10" step="0.5" value="4" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
+            <input type="number" id="inputB" value="4" min="0.1" max="500" step="0.5" class="w-20 bg-slate-900 border border-slate-700 text-center text-sm rounded-md p-1 text-white focus:outline-none focus:ring-1 focus:ring-red-500" />
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="runBtn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition shadow-lg shadow-emerald-900/30">
+          Run Reaction
+        </button>
+      </div>
+
+      <!-- Center Panel: Visualization -->
+      <div class="lg:col-span-5 bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Reaction Chamber Visual</h2>
+            <span id="statusBadge" class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-medium">Initial State</span>
+          </div>
+          <div class="relative w-full aspect-square rounded-lg overflow-hidden border border-slate-700">
+            <canvas id="simCanvas" width="450" height="450" class="w-full h-full block"></canvas>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs text-slate-400">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-blue-400 inline-block"></span>
+            <span id="legendA">Reactant A</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
+            <span>Oxygen (O₂)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Mathematical Breakdown -->
+      <div class="lg:col-span-3 bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-4 text-sm">
+        <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">Stoichiometric Analysis</h2>
+        
+        <div class="space-y-3">
+          <div>
+            <span class="text-xs text-slate-400 block">Balanced Equation</span>
+            <p id="mathEquation" class="font-mono text-xs font-semibold text-blue-300 mt-1 bg-slate-900 p-2 rounded border border-slate-700"></p>
+          </div>
+
+          <div>
+            <span class="text-xs text-slate-400 block">Available Moles</span>
+            <div id="mathMoles" class="text-xs font-mono space-y-1 mt-1 text-slate-300"></div>
+          </div>
+
+          <div>
+            <span class="text-xs text-slate-400 block">Limiting Reactant</span>
+            <div id="limitingBadge" class="mt-1 font-bold text-sm text-amber-400">Calculating...</div>
+          </div>
+
+          <div class="border-t border-slate-700 pt-3">
+            <span class="text-xs text-slate-400 block mb-1">Products & Leftovers</span>
+            <div id="mathYield" class="text-xs font-mono space-y-1 text-slate-300"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const reactions = [
+      { name: "1:1", eq: "C + O₂ → CO₂", nameA: "Carbon (C)", mmA: 12.01, mmB: 32.00, coeffA: 1, coeffB: 1, colorA: "#60a5fa" },
+      { name: "1:2", eq: "CH₄ + 2 O₂ → CO₂ + 2 H₂O", nameA: "Methane (CH₄)", mmA: 16.04, mmB: 32.00, coeffA: 1, coeffB: 2, colorA: "#34d399" },
+      { name: "2:1", eq: "2 CO + O₂ → 2 CO₂", nameA: "Carbon Monoxide (CO)", mmA: 28.01, mmB: 32.00, coeffA: 2, coeffB: 1, colorA: "#f59e0b" },
+      { name: "1:3", eq: "C₂H₅OH + 3 O₂ → 2 CO₂ + 3 H₂O", nameA: "Ethanol (C₂H₅OH)", mmA: 46.07, mmB: 32.00, coeffA: 1, coeffB: 3, colorA: "#a78bfa" },
+      { name: "3:2", eq: "3 Fe + 2 O₂ → Fe₃O₄", nameA: "Iron (Fe)", mmA: 55.85, mmB: 32.00, coeffA: 3, coeffB: 2, colorA: "#f43f5e" }
+    ];
+
+    let currentRxnIdx = 0;
+    let inputMode = 'moles'; // 'moles' or 'grams'
+    let isReacted = false;
+
+    // Elements
+    const rxnSelect = document.getElementById('reactionSelect');
+    const modeMolesBtn = document.getElementById('modeMolesBtn');
+    const modeGramsBtn = document.getElementById('modeGramsBtn');
+    const labelA = document.getElementById('labelA');
+    const legendA = document.getElementById('legendA');
+    const unitA = document.getElementById('unitA');
+    const unitB = document.getElementById('unitB');
+    const sliderA = document.getElementById('sliderA');
+    const inputA = document.getElementById('inputA');
+    const sliderB = document.getElementById('sliderB');
+    const inputB = document.getElementById('inputB');
+    const runBtn = document.getElementById('runBtn');
+    const statusBadge = document.getElementById('statusBadge');
+    
+    const mathEquation = document.getElementById('mathEquation');
+    const mathMoles = document.getElementById('mathMoles');
+    const limitingBadge = document.getElementById('limitingBadge');
+    const mathYield = document.getElementById('mathYield');
+
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function updateRxn() {
+      currentRxnIdx = parseInt(rxnSelect.value);
+      const rxn = reactions[currentRxnIdx];
+      labelA.innerText = rxn.nameA;
+      legendA.innerText = rxn.nameA;
+      mathEquation.innerText = rxn.eq;
+      resetState();
+    }
+
+    function setMode(mode) {
+      inputMode = mode;
+      if (mode === 'moles') {
+        modeMolesBtn.className = "py-1.5 text-xs font-semibold rounded-md bg-blue-600 text-white transition";
+        modeGramsBtn.className = "py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition";
+        unitA.innerText = "Moles (mol)";
+        unitB.innerText = "Moles (mol)";
+        sliderA.min = 1; sliderA.max = 10; sliderA.step = 0.5; sliderA.value = 3;
+        sliderB.min = 1; sliderB.max = 10; sliderB.step = 0.5; sliderB.value = 4;
+      } else {
+        modeGramsBtn.className = "py-1.5 text-xs font-semibold rounded-md bg-blue-600 text-white transition";
+        modeMolesBtn.className = "py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition";
+        unitA.innerText = "Mass (g)";
+        unitB.innerText = "Mass (g)";
+        const rxn = reactions[currentRxnIdx];
+        sliderA.min = 10; sliderA.max = 200; sliderA.step = 5; sliderA.value = Math.round(3 * rxn.mmA);
+        sliderB.min = 10; sliderB.max = 200; sliderB.step = 5; sliderB.value = Math.round(4 * rxn.mmB);
+      }
+      inputA.value = sliderA.value;
+      inputB.value = sliderB.value;
+      resetState();
+    }
+
+    function resetState() {
+      isReacted = false;
+      statusBadge.innerText = "Initial State";
+      statusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-medium";
+      runBtn.innerText = "Run Reaction";
+      calculateAndRender();
+    }
+
+    function syncInputs(source, target, isSlider) {
+      if (isSlider) target.value = source.value;
+      else source.value = target.value;
+      resetState();
+    }
+
+    function calculateAndRender() {
+      const rxn = reactions[currentRxnIdx];
+      let valA = parseFloat(inputA.value) || 0;
+      let valB = parseFloat(inputB.value) || 0;
+
+      let molesA = inputMode === 'moles' ? valA : valA / rxn.mmA;
+      let molesB = inputMode === 'moles' ? valB : valB / rxn.mmB;
+
+      // Ratio required
+      let requiredB = molesA * (rxn.coeffB / rxn.coeffA);
+      let limiting = molesB < requiredB ? "Oxygen (O₂)" : (molesB === requiredB ? "Exact Stoichiometric Ratio" : rxn.nameA);
+
+      let rxnRatio = Math.min(molesA / rxn.coeffA, molesB / rxn.coeffB);
+      let usedA = rxnRatio * rxn.coeffA;
+      let usedB = rxnRatio * rxn.coeffB;
+      let excessA = molesA - usedA;
+      let excessB = molesB - usedB;
+
+      // Update Math Panel
+      mathMoles.innerHTML = `
+        <div>${rxn.nameA}: <b>${molesA.toFixed(2)} mol</b> ${inputMode === 'grams' ? `(${valA}g)` : ''}</div>
+        <div>Oxygen (O₂): <b>${molesB.toFixed(2)} mol</b> ${inputMode === 'grams' ? `(${valB}g)` : ''}</div>
+      `;
+
+      limitingBadge.innerText = limiting;
+      limitingBadge.className = limiting.includes("Oxygen") ? "mt-1 font-bold text-sm text-red-400" : (limiting.includes("Exact") ? "mt-1 font-bold text-sm text-emerald-400" : "mt-1 font-bold text-sm text-blue-400");
+
+      mathYield.innerHTML = `
+        <div>Leftover ${rxn.nameA}: <b>${excessA.toFixed(2)} mol</b> (${(excessA * rxn.mmA).toFixed(1)}g)</div>
+        <div>Leftover O₂: <b>${excessB.toFixed(2)} mol</b> (${(excessB * rxn.mmB).toFixed(1)}g)</div>
+      `;
+
+      drawCanvas(molesA, molesB, rxn, isReacted, rxnRatio);
+    }
+
+    function drawCanvas(molesA, molesB, rxn, reacted, rxnRatio) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let countA = Math.min(Math.round(molesA * 3), 30);
+      let countB = Math.min(Math.round(molesB * 3), 30);
+
+      let usedA = Math.min(Math.round(rxnRatio * rxn.coeffA * 3), countA);
+      let usedB = Math.min(Math.round(rxnRatio * rxn.coeffB * 3), countB);
+
+      let remainingA = reacted ? countA - usedA : countA;
+      let remainingB = reacted ? countB - usedB : countB;
+
+      // Particle drawing helpers
+      const drawParticle = (x, y, color, label) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 12, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, x, y);
+      };
+
+      let particles = [];
+      
+      // Add Reactant A particles
+      for (let i = 0; i < remainingA; i++) {
+        particles.push({ color: rxn.colorA, label: rxn.nameA.substring(0, 3) });
+      }
+      // Add Oxygen particles
+      for (let i = 0; i < remainingB; i++) {
+        particles.push({ color: "#ef4444", label: "O₂" });
+      }
+
+      // Add Product visual placeholders if reacted
+      let productCount = reacted ? Math.round(rxnRatio * 3) : 0;
+      for (let i = 0; i < productCount; i++) {
+        particles.push({ color: "#10b981", label: "Prod" });
+      }
+
+      // Grid placement
+      let cols = 6;
+      let spacing = canvas.width / (cols + 1);
+      particles.forEach((p, idx) => {
+        let col = idx % cols;
+        let row = Math.floor(idx / cols);
+        let x = spacing + col * spacing;
+        let y = 60 + row * 55;
+        drawParticle(x, y, p.color, p.label);
+      });
+    }
+
+    // Listeners
+    rxnSelect.addEventListener('change', updateRxn);
+    modeMolesBtn.addEventListener('click', () => setMode('moles'));
+    modeGramsBtn.addEventListener('click', () => setMode('grams'));
+
+    sliderA.addEventListener('input', () => syncInputs(sliderA, inputA, true));
+    inputA.addEventListener('input', () => syncInputs(inputA, sliderA, false));
+    sliderB.addEventListener('input', () => syncInputs(sliderB, inputB, true));
+    inputB.addEventListener('input', () => syncInputs(inputB, sliderB, false));
+
+    runBtn.addEventListener('click', () => {
+      isReacted = !isReacted;
+      statusBadge.innerText = isReacted ? "Reaction Complete" : "Initial State";
+      statusBadge.className = isReacted ? "text-xs px-2.5 py-1 rounded-full bg-emerald-900 text-emerald-300 font-medium" : "text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-medium";
+      runBtn.innerText = isReacted ? "Reset Reaction" : "Run Reaction";
+      calculateAndRender();
+    });
+
+    // Initialize
+    updateRxn();
+    setMode('moles');
+  </script>
+</body>
+</html>
