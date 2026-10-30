@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Limiting Reactant Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+  :root{
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    color-scheme:light;
+    --bg:#EAF0F2; --card:#FFFFFF; --field:#F5F8F9; --ink:#13202A; --muted:#566874; --line:#D0DAE0;
+    --vessel:#F6FAFB; --vessel-line:#AFC0CA;
+    --A:#6A4FD6; --B:#0B87A9; --P:#B86E00;
+    --red:#D43A3A; --redbg:#FCE9E9; --redink:#A11D1D;
+    --green:#2A9558; --greenbg:#E1F4E9; --greenink:#12673A;
+    --tiebg:#ECE8FB; --tieink:#4631A8;
+    --chip:#FFF0C7; --chipink:#6B4500;
+    --atomC:#3C4450; --atomO:#2AA7D6; --atomH:#FFFFFF; --atomFe:#B8693D;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#0D1419; --card:#16212A; --field:#101A21; --ink:#E6EEF3; --muted:#9AABB7; --line:#2A3A46;
+      --vessel:#0F181E; --vessel-line:#3A4D5A;
+      --A:#A18DFF; --B:#3CC3E6; --P:#F0A93A;
+      --red:#FF6B6B; --redbg:#3A1E22; --redink:#FFA3A3;
+      --green:#4CD08A; --greenbg:#17332A; --greenink:#86E5B0;
+      --tiebg:#27224A; --tieink:#C4B8FF;
+      --chip:#4A3A12; --chipink:#FFD98A;
+      --atomC:#AEB8C4; --atomO:#3BB8E8; --atomH:#F2F6F8; --atomFe:#D98A55;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0D1419; --card:#16212A; --field:#101A21; --ink:#E6EEF3; --muted:#9AABB7; --line:#2A3A46;
+    --vessel:#0F181E; --vessel-line:#3A4D5A;
+    --A:#A18DFF; --B:#3CC3E6; --P:#F0A93A;
+    --red:#FF6B6B; --redbg:#3A1E22; --redink:#FFA3A3;
+    --green:#4CD08A; --greenbg:#17332A; --greenink:#86E5B0;
+    --tiebg:#27224A; --tieink:#C4B8FF;
+    --chip:#4A3A12; --chipink:#FFD98A;
+    --atomC:#AEB8C4; --atomO:#3BB8E8; --atomH:#F2F6F8; --atomFe:#D98A55;
+  }
+  html{ scroll-padding-top:env(safe-area-inset-top,0px); background:var(--bg); }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; line-height:1.5; }
+  sub{ font-size:.68em; line-height:0; vertical-align:-.28em; }
+  :focus-visible{ outline:3px solid var(--A); outline-offset:2px; }
+
+  .font-display{ font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif; letter-spacing:-.02em; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; }
+  .muted{ color:var(--muted); }
+  .small{ font-size:.8125rem; }
+  .fl{ display:block; font-size:.8125rem; font-weight:600; color:var(--muted); margin-bottom:.35rem; }
+  .inp{ width:100%; background:var(--field); border:1px solid var(--line); border-radius:10px; padding:.55rem .7rem; color:var(--ink); font:inherit; }
+  select.inp{ font-weight:600; }
+  .seg{ display:grid; grid-template-columns:1fr 1fr; gap:3px; background:var(--field); border:1px solid var(--line); border-radius:10px; padding:3px; }
+  .seg button{ border-radius:8px; padding:.5rem .5rem; font-weight:600; color:var(--muted); transition:background .15s,color .15s; }
+  .seg button[aria-checked="true"]{ background:var(--ink); color:var(--card); }
+
+  .sp{ background:var(--field); border:1px solid var(--line); border-radius:12px; padding:.85rem .9rem; }
+  .spA{ border-left:5px solid var(--A); }
+  .spB{ border-left:5px solid var(--B); }
+  .dot{ display:inline-block; width:.7rem; height:.7rem; border-radius:50%; flex:none; }
+  .dotA{ background:var(--A); } .dotB{ background:var(--B); } .dotP{ background:var(--P); }
+  .formula{ font-family:'Bricolage Grotesque','Figtree',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-.01em; }
+  .rng{ width:100%; margin:.7rem 0 .55rem; }
+  #sliderA{ accent-color:var(--A); } #sliderB{ accent-color:var(--B); }
+  .numwrap{ position:relative; }
+  .numwrap input{ padding-right:3.2rem; font-variant-numeric:tabular-nums; }
+  .numwrap .unit{ position:absolute; right:.8rem; top:50%; transform:translateY(-50%); color:var(--muted); font-size:.85rem; pointer-events:none; }
+
+  .badge{ display:inline-flex; align-items:center; border-radius:999px; padding:.12rem .65rem; font-size:.75rem; font-weight:700; white-space:nowrap; }
+  .b-lim{ background:var(--redbg); color:var(--redink); border:1px solid var(--red); }
+  .b-exc{ background:var(--greenbg); color:var(--greenink); border:1px solid var(--green); }
+  .b-tie{ background:var(--tiebg); color:var(--tieink); border:1px solid var(--A); }
+
+  .btn{ background:var(--ink); color:var(--card); border-radius:12px; padding:.65rem 1.2rem; font-weight:700; transition:opacity .15s, transform .1s; }
+  .btn:active:not(:disabled){ transform:scale(.97); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-ghost{ border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:10px; padding:.45rem .9rem; font-weight:600; font-size:.875rem; }
+  .btn-ghost:hover{ background:var(--field); }
+
+  .vessel-wrap{ border-radius:14px; background:var(--vessel); border:1px solid var(--line); overflow:hidden; }
+  .vessel-wrap canvas{ display:block; width:100%; }
+  .schip{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--line); border-radius:999px; padding:.25rem .75rem; background:var(--field); font-size:.9rem; }
+
+  .step{ border-top:1px solid var(--line); padding-top:1.1rem; margin-top:1.2rem; }
+  .step h3{ display:flex; align-items:center; gap:.55rem; font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:1.1rem; font-weight:800; letter-spacing:-.01em; }
+  .stepno{ display:inline-grid; place-items:center; width:1.6rem; height:1.6rem; border-radius:50%; background:var(--ink); color:var(--card); font-size:.85rem; font-weight:700; }
+  .eq{ display:flex; flex-wrap:wrap; align-items:center; gap:.4rem .55rem; font-family:'Bricolage Grotesque','Figtree',sans-serif; font-size:1.55rem; font-weight:800; }
+  .term{ display:inline-flex; align-items:baseline; gap:.25rem; }
+  .coef{ background:var(--chip); color:var(--chipink); border-radius:8px; padding:0 .5rem; font-size:1.1rem; line-height:1.7; }
+  .coef.one{ opacity:.6; }
+  .op,.arrow{ color:var(--muted); font-weight:600; }
+  .sA{ color:var(--A); } .sB{ color:var(--B); } .sP{ color:var(--P); }
+
+  .calc{ background:var(--field); border:1px solid var(--line); border-radius:10px; padding:.6rem .8rem; margin-top:.6rem; font-size:.95rem; }
+  .rowhead{ display:flex; align-items:center; gap:.45rem; font-weight:700; margin-bottom:.25rem; }
+  .math{ font-variant-numeric:tabular-nums; }
+  .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 .2rem; line-height:1.25; font-size:.92em; }
+  .frac > span:first-child{ border-bottom:1.5px solid currentColor; padding:0 .3rem .05rem; }
+  .frac > span:last-child{ padding:.05rem .3rem 0; }
+
+  .batch{ display:grid; grid-template-columns:auto 1fr; gap:.3rem .8rem; align-items:center; }
+  .bar{ height:12px; background:var(--line); border-radius:6px; overflow:hidden; grid-column:1 / -1; }
+  .bar i{ display:block; height:100%; border-radius:6px; transition:width .35s ease; }
+  .bar i.lim{ background:var(--red); } .bar i.exc{ background:var(--green); } .bar i.tie{ background:var(--A); }
+  .ok{ color:var(--greenink); font-weight:700; } .short{ color:var(--redink); font-weight:700; }
+  .verdict{ border-radius:10px; padding:.7rem .85rem; margin-top:.8rem; font-weight:600; }
+  .verdict.lim{ background:var(--redbg); color:var(--redink); border:1px solid var(--red); }
+  .verdict.tie{ background:var(--tiebg); color:var(--tieink); border:1px solid var(--A); }
+  .verdict.none{ background:var(--field); color:var(--muted); border:1px dashed var(--line); }
+
+  .tblwrap{ overflow-x:auto; margin-top:.6rem; }
+  .tbl{ width:100%; border-collapse:collapse; font-size:.875rem; font-variant-numeric:tabular-nums; }
+  .tbl th{ text-align:left; font-weight:600; color:var(--muted); padding:.35rem .5rem; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .tbl td{ padding:.5rem .5rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  .tbl tr:last-child td{ border-bottom:0; }
+  .tbl .sub2{ color:var(--muted); font-size:.8rem; }
+
+  @media (prefers-reduced-motion: reduce){
+    .bar i,.btn,.seg button{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<main class="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl sm:text-4xl font-extrabold">Limiting reactant lab</h1>
+    <p class="muted mt-2 max-w-2xl">Pick a reaction and decide how much of each reactant goes into the vessel. Then run it and see which reactant runs out first, and how much is left over.</p>
+  </header>
+
+  <div class="grid gap-5 lg:grid-cols-12">
+    <section class="lg:col-span-7 space-y-5" aria-label="Controls and particle view">
+
+      <!-- Controls -->
+      <div class="card p-4 sm:p-5">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="fl" for="rxSel">Reaction</label>
+            <select id="rxSel" class="inp"></select>
+          </div>
+          <div>
+            <span class="fl" id="unitLbl">Enter amounts as</span>
+            <div class="seg" role="radiogroup" aria-labelledby="unitLbl">
+              <button type="button" role="radio" aria-checked="true" data-unit="mol">Moles (mol)</button>
+              <button type="button" role="radio" aria-checked="false" data-unit="g">Mass (g)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="sp spA">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2"><i class="dot dotA"></i><span class="formula" id="fA"></span></div>
+                <div class="muted small" id="mmA"></div>
+              </div>
+              <span id="badgeA"></span>
+            </div>
+            <input type="range" id="sliderA" class="rng" min="0" max="10" step="0.05" value="0" aria-label="Amount of reactant A">
+            <div class="numwrap">
+              <input type="number" id="numA" class="inp" inputmode="decimal" min="0" step="any" aria-label="Amount of reactant A">
+              <span class="unit" id="unitA">mol</span>
+            </div>
+          </div>
+          <div class="sp spB">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2"><i class="dot dotB"></i><span class="formula" id="fB"></span><span class="muted small">oxygen</span></div>
+                <div class="muted small" id="mmB"></div>
+              </div>
+              <span id="badgeB"></span>
+            </div>
+            <input type="range" id="sliderB" class="rng" min="0" max="10" step="0.05" value="0" aria-label="Amount of oxygen">
+            <div class="numwrap">
+              <input type="number" id="numB" class="inp" inputmode="decimal" min="0" step="any" aria-label="Amount of oxygen">
+              <span class="unit" id="unitB">mol</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <button type="button" id="exact" class="btn-ghost">Set exact ratio</button>
+          <span class="muted small">Keeps reactant A and sets oxygen to match the equation.</span>
+        </div>
+      </div>
+
+      <!-- Vessel -->
+      <div class="card p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-display text-xl font-extrabold">Reaction vessel</h2>
+            <p id="stage" class="muted small" aria-live="polite">Before the reaction</p>
+          </div>
+          <button type="button" id="runBtn" class="btn">Run reaction</button>
+        </div>
+        <div id="canvasWrap" class="vessel-wrap mt-3">
+          <canvas id="cv" role="img" aria-label="Reaction vessel with particles"></canvas>
+        </div>
+        <p id="hint" class="small mt-3" aria-live="polite"></p>
+        <div id="snap" class="mt-3 flex flex-wrap gap-2"></div>
+        <p id="scaleNote" class="muted small mt-3"></p>
+        <p class="muted small mt-1">Red ring: limiting reactant. Green ring: excess reactant. Dashed box: a set with a missing partner.</p>
+      </div>
+    </section>
+
+    <!-- Math -->
+    <aside class="lg:col-span-5" aria-label="Step-by-step calculation">
+      <div class="card p-4 sm:p-5">
+        <h2 class="font-display text-xl font-extrabold">How the numbers work</h2>
+        <div id="math"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Data ---------- */
+var SPEC = {C:12.011, O2:31.998, CO2:44.009, CH4:16.043, H2O:18.015, CO:28.010, C2H5OH:46.069, Fe:55.845, Fe3O4:231.531};
+var REACTIONS = [
+  {ratio:'1:1', a:{f:'C',c:1},      b:{f:'O2',c:1}, p:[{f:'CO2',c:1}],                    def:[4,3]},
+  {ratio:'1:2', a:{f:'CH4',c:1},    b:{f:'O2',c:2}, p:[{f:'CO2',c:1},{f:'H2O',c:2}],      def:[2,6]},
+  {ratio:'2:1', a:{f:'CO',c:2},     b:{f:'O2',c:1}, p:[{f:'CO2',c:2}],                    def:[4,3]},
+  {ratio:'1:3', a:{f:'C2H5OH',c:1}, b:{f:'O2',c:3}, p:[{f:'CO2',c:2},{f:'H2O',c:3}],      def:[3,6]},
+  {ratio:'3:2', a:{f:'Fe',c:3},     b:{f:'O2',c:2}, p:[{f:'Fe3O4',c:1}],                  def:[6,5]}
+];
+var EL = {C:{r:9,v:'--atomC'}, O:{r:8,v:'--atomO'}, H:{r:5,v:'--atomH'}, Fe:{r:10,v:'--atomFe'}};
+var MOL = {
+  'C':[['C',0,0]],
+  'O2':[['O',-8,0],['O',8,0]],
+  'CO2':[['O',-17,0],['C',0,0],['O',17,0]],
+  'CH4':[['C',0,0],['H',-10,-10],['H',10,-10],['H',-10,10],['H',10,10]],
+  'H2O':[['O',0,-3],['H',-9,7],['H',9,7]],
+  'CO':[['C',-8,0],['O',8,0]],
+  'C2H5OH':[['C',-14,4],['C',3,-3],['O',19,3],['H',27,-6],['H',4,-17],['H',6,11],['H',-26,-3],['H',-24,14],['H',-12,18]],
+  'Fe':[['Fe',0,0]],
+  'Fe3O4':[['Fe',-11,-7],['Fe',11,-7],['Fe',0,12],['O',-21,6],['O',21,6],['O',0,-17],['O',0,2]]
+};
+var MR = {};
+Object.keys(MOL).forEach(function(k){
+  var at = MOL[k], minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+  at.forEach(function(a){ var r=EL[a[0]].r; minx=Math.min(minx,a[1]-r); maxx=Math.max(maxx,a[1]+r); miny=Math.min(miny,a[2]-r); maxy=Math.max(maxy,a[2]+r); });
+  var cx=(minx+maxx)/2, cy=(miny+maxy)/2, mr=0;
+  at.forEach(function(a){ a[1]-=cx; a[2]-=cy; mr=Math.max(mr,Math.hypot(a[1],a[2])+EL[a[0]].r); });
+  MR[k]=mr;
+});
+
+/* ---------- Helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function F(f){ return f.replace(/(\d+)/g,'<sub>$1</sub>'); }
+function plainU(f){ var m='₀₁₂₃₄₅₆₇₈₉'; return f.replace(/\d/g,function(d){return m[+d];}); }
+function fmt(x){
+  if(!isFinite(x)) return '–';
+  if(x===0) return '0';
+  if(Math.abs(x)<0.001) return x.toExponential(2);
+  return String(parseFloat(x.toPrecision(4)));
+}
+function trimFixed(x,d){ return String(parseFloat(x.toFixed(d))); }
+function frac(n,d){ return '<span class="frac"><span>'+n+'</span><span>'+d+'</span></span>'; }
+function eqText(R){
+  var t=function(s){ return (s.c>1?s.c+' ':'')+plainU(s.f); };
+  return t(R.a)+' + '+t(R.b)+' → '+R.p.map(t).join(' + ');
+}
+
+/* ---------- State ---------- */
+var S = {rx:0, unit:'mol', n:{A:1,B:1}, phase:'idle', status:{A:'none',B:'none'}, c:null, plan:null, fused:[]};
+var particles = [], groups = [], flashes = [], simT = 0;
+function cur(){ return REACTIONS[S.rx]; }
+function spOf(k){ return k==='A' ? cur().a : cur().b; }
+var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Stoichiometry ---------- */
+function calc(){
+  var R=cur(), a=R.a.c, b=R.b.c, nA=S.n.A, nB=S.n.B;
+  var MA=SPEC[R.a.f], MB=SPEC[R.b.f];
+  var xA=nA/a, xB=nB/b, xi=Math.min(xA,xB);
+  var tie=Math.abs(xA-xB) <= 1e-6*Math.max(xA,xB,1e-12);
+  var lim = (nA===0&&nB===0) ? 'none' : (tie ? 'both' : (xA<xB ? 'A' : 'B'));
+  var clean=function(v,n){ return v < 1e-9*Math.max(1,n) ? 0 : v; };
+  var usedA=a*xi, usedB=b*xi;
+  var remA=clean(Math.max(0,nA-usedA),nA), remB=clean(Math.max(0,nB-usedB),nB);
+  var prods=R.p.map(function(p){ var n=p.c*xi; return {f:p.f,c:p.c,n:n,m:n*SPEC[p.f]}; });
+  return {R:R,a:a,b:b,nA:nA,nB:nB,MA:MA,MB:MB,xA:xA,xB:xB,xi:xi,lim:lim,usedA:usedA,usedB:usedB,remA:remA,remB:remB,prods:prods};
+}
+function statusFrom(c){
+  if(c.lim==='none') return {A:'none',B:'none'};
+  if(c.lim==='both') return {A:'tie',B:'tie'};
+  return c.lim==='A' ? {A:'lim',B:'exc'} : {A:'exc',B:'lim'};
+}
+function badge(st){
+  if(st==='lim') return '<span class="badge b-lim">Limiting</span>';
+  if(st==='exc') return '<span class="badge b-exc">Excess</span>';
+  if(st==='tie') return '<span class="badge b-tie">Exact match</span>';
+  return '';
+}
+
+/* ---------- Canvas ---------- */
+var cv=$('cv'), ctx=cv.getContext('2d');
+var W=0, H=0, DPR=1, VP=10;
+var cells=[], lay={s:1};
+var T={};
+function readTheme(){
+  var cs=getComputedStyle(document.documentElement);
+  ['--atomC','--atomO','--atomH','--atomFe','--vessel','--vessel-line','--red','--green','--P','--A','--muted','--card','--line'].forEach(function(k){ T[k]=cs.getPropertyValue(k).trim(); });
+}
+function applySize(h){
+  DPR=Math.min(2, window.devicePixelRatio||1);
+  if(h===H && cv.width===Math.round(W*DPR)) return;
+  H=h;
+  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+  cv.style.width=W+'px'; cv.style.height=H+'px';
+}
+function resize(){
+  var w=$('canvasWrap').clientWidth;
+  if(!w || w===W) return;
+  W=w; layout();
+}
+
+function mkP(sp,mol,role){
+  return {sp:sp,mol:mol,role:role,x:0,y:0,hx:0,hy:0,ang:0,alpha:1,sc:0.01,st:'free',born:0,rad:MR[mol],idx:0,fresh:true};
+}
+function particlePlan(){
+  var nA=S.n.A, nB=S.n.B, mx=Math.max(nA,nB), q=0.5;
+  var QS=[0.05,0.1,0.25,0.5,1,2,5,10,20,50,100,200,500,1000];
+  if(mx>0){ q=QS.filter(function(v){return mx/v<=24;})[0] || QS[QS.length-1]; }
+  return {q:q, cA:nA>0?Math.max(1,Math.round(nA/q)):0, cB:nB>0?Math.max(1,Math.round(nB/q)):0};
+}
+
+/* Each box is one "set" of the equation: a of A and b of B side by side. */
+function layout(){
+  if(!W) return;
+  var R=cur(), a=R.a.c, b=R.b.c, plan=S.plan||particlePlan();
+  var events=Math.min(Math.floor(plan.cA/a), Math.floor(plan.cB/b));
+  var nCells=Math.max(1, Math.ceil(plan.cA/a), Math.ceil(plan.cB/b));
+  var prodN=R.p.reduce(function(s,p){return s+p.c;},0);
+  var maxD=0;
+  [R.a.f,R.b.f].concat(R.p.map(function(p){return p.f;})).forEach(function(f){ maxD=Math.max(maxD,2*MR[f]); });
+  var slotU=maxD+8, slots=Math.max(a+b+0.6,prodN), cellWU=slots*slotU+16, cellHU=maxD+30;
+  var avail=W-2*VP-16, gap=8, s=1.05, cols, rows, hh;
+  for(;;){
+    var cw=cellWU*s;
+    cols=Math.max(1,Math.min(nCells,Math.floor((avail+gap)/(cw+gap))));
+    rows=Math.ceil(nCells/cols);
+    hh=rows*cellHU*s+(rows-1)*gap+2*(VP+10);
+    if((hh<=460 && cw<=avail) || s<=0.45) break;
+    s-=0.05;
+  }
+  lay.s=s;
+  var cellW=cellWU*s, cellH=cellHU*s, sw=slotU*s;
+  var gridW=cols*cellW+(cols-1)*gap, x0=(W-gridW)/2, y0=VP+10;
+  applySize(Math.max(220, Math.ceil(rows*cellH+(rows-1)*gap+2*(VP+10))));
+  cells=[];
+  for(var i=0;i<nCells;i++){
+    var col=i%cols, row=Math.floor(i/cols);
+    var cx0=x0+col*(cellW+gap), cy0=y0+row*(cellH+gap);
+    var c={x:cx0,y:cy0,w:cellW,h:cellH,cx:cx0+cellW/2,cy:cy0+cellH/2,complete:i<events,fused:!!S.fused[i],aSlots:[],bSlots:[],pSlots:[]};
+    var rs=(cellW-(a+b+0.6)*sw)/2+sw/2, k;
+    for(k=0;k<a;k++) c.aSlots.push({x:cx0+rs+k*sw,y:c.cy,has:i*a+k<plan.cA});
+    for(k=0;k<b;k++) c.bSlots.push({x:cx0+rs+(a+0.6+k)*sw,y:c.cy,has:i*b+k<plan.cB});
+    c.plus={x:cx0+rs+(a-1)*sw+sw*0.8,y:c.cy};
+    var ps=(cellW-prodN*sw)/2+sw/2;
+    for(k=0;k<prodN;k++) c.pSlots.push({x:cx0+ps+k*sw,y:c.cy});
+    cells.push(c);
+  }
+  assignHomes();
+}
+function assignHomes(){
+  var R=cur(), a=R.a.c, b=R.b.c;
+  particles.forEach(function(p){
+    if(p.st==='dead') return;
+    var c, slot;
+    if(p.role==='product'){ c=cells[p.cell]; slot=c&&c.pSlots[p.slot]; }
+    else if(p.sp==='A'){ c=cells[Math.floor(p.idx/a)]; slot=c&&c.aSlots[p.idx%a]; }
+    else { c=cells[Math.floor(p.idx/b)]; slot=c&&c.bSlots[p.idx%b]; }
+    if(!slot) return;
+    p.hx=slot.x; p.hy=slot.y;
+    if(p.fresh){ p.x=p.hx; p.y=p.hy; p.fresh=false; }
+  });
+}
+function syncParticles(){
+  var plan=particlePlan(); S.plan=plan;
+  if(S.phase==='idle'){
+    ['A','B'].forEach(function(k){
+      var want=k==='A'?plan.cA:plan.cB, mol=spOf(k).f;
+      var have=particles.filter(function(p){return p.sp===k&&p.role==='reactant';});
+      while(have.length>want){ var p=have.pop(); particles.splice(particles.indexOf(p),1); }
+      while(have.length<want){ var np=mkP(k,mol,'reactant'); np.idx=have.length; particles.push(np); have.push(np); }
+    });
+  }
+  layout();
+}
+
+function run(){
+  if(S.phase!=='idle') return;
+  var R=cur(), plan=S.plan, a=R.a.c, b=R.b.c;
+  var events=Math.min(Math.floor(plan.cA/a), Math.floor(plan.cB/b));
+  if(events<1) return;
+  var gap=Math.min(0.12,2/events);
+  groups=[];
+  for(var e=0;e<events;e++){
+    (function(e){
+      var members=particles.filter(function(p){
+        return p.role==='reactant' && ((p.sp==='A'&&Math.floor(p.idx/a)===e) || (p.sp==='B'&&Math.floor(p.idx/b)===e));
+      });
+      groups.push({cell:e,members:members,t0:simT+0.2+e*gap,dur:reduceMotion?0.01:0.9,done:false,started:false});
+    })(e);
+  }
+  S.phase='reacting';
+  updateUI();
+}
+function fuse(g){
+  var R=cur(), c=cells[g.cell], slot=0;
+  g.done=true;
+  g.members.forEach(function(p){ p.st='dead'; });
+  R.p.forEach(function(pr,pi){
+    for(var k=0;k<pr.c;k++){
+      var q=mkP('P'+pi,pr.f,'product');
+      q.cell=g.cell; q.slot=slot++; q.born=simT; q.alpha=0; q.sc=0.3;
+      particles.push(q);
+    }
+  });
+  S.fused[g.cell]=true; c.fused=true;
+  assignHomes();
+  if(!reduceMotion) flashes.push({x:c.cx,y:c.cy,t:simT});
+}
+function resetSim(){
+  particles=[]; groups=[]; flashes=[]; S.fused=[]; S.phase='idle';
+  syncParticles(); updateUI();
+}
+
+function step(dt){
+  simT+=dt;
+  var i, k=Math.min(1,dt*12);
+  for(i=0;i<particles.length;i++){
+    var p=particles[i];
+    if(p.st==='free'){
+      p.x+=(p.hx-p.x)*k; p.y+=(p.hy-p.y)*k;
+      if(p.role==='reactant' && p.sc<1) p.sc=Math.min(1,p.sc+dt*5);
+    }
+    if(p.role==='product'){ var t=Math.min(1,(simT-p.born)/0.4); p.alpha=t; p.sc=0.3+0.7*t; }
+  }
+  var fused=false;
+  groups.forEach(function(g){
+    if(g.done) return;
+    if(!g.started && simT>=g.t0){
+      g.started=true;
+      g.members.forEach(function(p){ p.st='moving'; p.sx=p.x; p.sy=p.y; });
+    }
+    if(g.started){
+      var c=cells[g.cell], t=Math.min(1,(simT-g.t0)/g.dur), e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, n=g.members.length;
+      g.members.forEach(function(p,j){
+        var tx=c.cx+(j-(n-1)/2)*7*lay.s, ty=c.cy;
+        p.x=p.sx+(tx-p.sx)*e; p.y=p.sy+(ty-p.sy)*e;
+      });
+      if(t>=1){ fuse(g); fused=true; }
+    }
+  });
+  if(fused){
+    particles=particles.filter(function(p){return p.st!=='dead';});
+    updateSnapshot();
+    if(groups.every(function(g){return g.done;})){ S.phase='done'; updateUI(); }
+  }
+  flashes=flashes.filter(function(f){ return simT-f.t<0.55; });
+}
+
+function rrect(x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function ringColor(st){ return st==='lim'?T['--red']:st==='exc'?T['--green']:st==='tie'?T['--A']:null; }
+function drawParticle(p,sc){
+  var atoms=MOL[p.mol], s=sc*p.sc, i;
+  ctx.save(); ctx.translate(p.x,p.y); ctx.scale(s,s); ctx.globalAlpha=p.alpha;
+  for(i=0;i<atoms.length;i++){
+    var at=atoms[i], E=EL[at[0]];
+    ctx.beginPath(); ctx.arc(at[1],at[2],E.r,0,6.2832); ctx.fillStyle=T[E.v]; ctx.fill();
+    ctx.lineWidth=1.2; ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(at[1]-E.r*.3,at[2]-E.r*.3,E.r*.3,0,6.2832); ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fill();
+  }
+  ctx.restore();
+  if(p.role==='reactant'){
+    var col=ringColor(S.status[p.sp]);
+    if(col){
+      ctx.save(); ctx.globalAlpha=p.alpha; ctx.beginPath(); ctx.arc(p.x,p.y,p.rad*s+5*sc,0,6.2832);
+      ctx.lineWidth=2.5; ctx.strokeStyle=col; ctx.stroke(); ctx.restore();
+    }
+  }
+}
+function draw(){
+  if(!W||!H) return;
+  ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H);
+  var s=lay.s, R=cur();
+  rrect(VP,VP,W-2*VP,H-2*VP,18); ctx.fillStyle=T['--vessel']; ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle=T['--vessel-line']; ctx.stroke();
+  cells.forEach(function(c){
+    rrect(c.x,c.y,c.w,c.h,10*s);
+    ctx.fillStyle=T['--card']; ctx.fill();
+    if(c.fused){ ctx.save(); ctx.globalAlpha=0.14; ctx.fillStyle=T['--P']; ctx.fill(); ctx.restore(); }
+    ctx.lineWidth=1.5; ctx.strokeStyle=c.fused?T['--P']:T['--line'];
+    ctx.setLineDash(c.complete?[]:[5,4]); ctx.stroke(); ctx.setLineDash([]);
+    if(!c.fused){
+      var fs=Math.max(9,Math.round(11*s)), rr=Math.max(9,13*s);
+      ctx.font='600 '+fs+'px Figtree, system-ui, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      [[c.aSlots,R.a.f],[c.bSlots,R.b.f]].forEach(function(g){
+        g[0].forEach(function(sl){
+          if(sl.has) return;
+          ctx.beginPath(); ctx.arc(sl.x,sl.y,rr,0,6.2832); ctx.lineWidth=1.5; ctx.strokeStyle=T['--muted']; ctx.globalAlpha=0.6; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle=T['--muted']; ctx.fillText(plainU(g[1]),sl.x,sl.y+0.5); ctx.globalAlpha=1;
+        });
+      });
+      ctx.font='700 '+Math.round(18*s)+'px Figtree, system-ui, sans-serif'; ctx.fillStyle=T['--muted']; ctx.fillText('+',c.plus.x,c.plus.y);
+    }
+  });
+  flashes.forEach(function(f){
+    var k=(simT-f.t)/0.55;
+    ctx.save(); ctx.globalAlpha=1-k; ctx.beginPath(); ctx.arc(f.x,f.y,8+k*36*s,0,6.2832); ctx.lineWidth=3; ctx.strokeStyle=T['--P']; ctx.stroke(); ctx.restore();
+  });
+  particles.forEach(function(p){ if(p.role==='reactant') drawParticle(p,s); });
+  particles.forEach(function(p){ if(p.role==='product') drawParticle(p,s); });
+}
+var last=performance.now();
+function frame(now){
+  var dt=Math.min(0.05,(now-last)/1000); last=now;
+  step(dt); draw(); requestAnimationFrame(frame);
+}
+
+/* ---------- UI updates ---------- */
+function updateSnapshot(){
+  var R=cur();
+  var cnt=function(k){ return particles.filter(function(p){return p.sp===k&&p.st!=='dead';}).length; };
+  var after=S.phase!=='idle';
+  var chips=[];
+  [['A',R.a],['B',R.b]].forEach(function(x){
+    chips.push('<span class="schip"><i class="dot dot'+x[0]+'"></i><b>'+cnt(x[0])+'</b> '+F(x[1].f)+(after?' left':'')+' '+badge(S.status[x[0]])+'</span>');
+  });
+  if(after){
+    R.p.forEach(function(pr,i){ chips.push('<span class="schip"><i class="dot dotP"></i><b>'+cnt('P'+i)+'</b> '+F(pr.f)+' formed</span>'); });
+  }
+  $('snap').innerHTML=chips.join('');
+  var txt=[R.a.f+': '+cnt('A'),R.b.f+': '+cnt('B')];
+  if(after) R.p.forEach(function(pr,i){ txt.push(pr.f+': '+cnt('P'+i)); });
+  cv.setAttribute('aria-label','Reaction vessel particle counts. '+txt.join(', '));
+}
+function updateUI(){
+  var c=S.c, plan=S.plan, R=cur();
+  var events=Math.min(Math.floor(plan.cA/R.a.c), Math.floor(plan.cB/R.b.c));
+  var btn=$('runBtn'), hint=$('hint');
+  $('stage').textContent = S.phase==='idle' ? 'Before the reaction' : S.phase==='reacting' ? 'Reacting…' : 'After the reaction';
+  if(S.phase==='idle'){
+    btn.textContent='Run reaction'; btn.disabled = events<1;
+    if(S.n.A===0 && S.n.B===0) hint.textContent='Add some of both reactants to run the reaction.';
+    else if(S.n.A===0 || S.n.B===0) hint.textContent='Both reactants are needed. With none of '+(S.n.A===0?R.a.f:R.b.f).replace(/\d/g,function(d){return '₀₁₂₃₄₅₆₇₈₉'[+d];})+', nothing can react.';
+    else if(events<1) hint.textContent='There are too few particles at this scale to form one full set. Raise the amounts a little.';
+    else hint.textContent='Each box is one set from the equation, with the partners side by side. A dashed box is missing a partner, so its particles are solo. Press Run reaction to pair them up.';
+  } else if(S.phase==='reacting'){
+    btn.textContent='Reacting…'; btn.disabled=true; hint.textContent='Partners in each complete box are combining into products.';
+  } else {
+    btn.textContent='Reset vessel'; btn.disabled=false;
+    hint.textContent = c.lim==='both' ? 'Nothing is left over: the amounts matched the equation exactly.' : 'Done. Each complete box turned its partners into products. Dashed boxes never found a partner: those solo particles are the excess reactant.';
+  }
+  var q=plan.q;
+  $('scaleNote').textContent='Each particle stands for about '+fmt(q)+' mol, so the counts are rounded to whole particles. The exact values are on the right.';
+  updateSnapshot();
+}
+function setBadges(){
+  $('badgeA').innerHTML=badge(S.status.A);
+  $('badgeB').innerHTML=badge(S.status.B);
+}
+
+/* ---------- Math panel ---------- */
+function renderMath(){
+  var c=S.c, R=c.R, A=R.a, B=R.b, a=c.a, b=c.b;
+  var dotK=function(k){ return '<i class="dot dot'+k+'"></i>'; };
+  var term=function(s,cls){ return '<span class="term"><span class="coef'+(s.c===1?' one':'')+'">'+s.c+'</span><span class="'+cls+'">'+F(s.f)+'</span></span>'; };
+  var eq=term(A,'sA')+'<span class="op">+</span>'+term(B,'sB')+'<span class="arrow">→</span>'+R.p.map(function(p){return term(p,'sP');}).join('<span class="op">+</span>');
+
+  var conv=function(k,sp,n,M){
+    var m=n*M;
+    var body = S.unit==='g'
+      ? '<div class="math">n = '+frac('m','M')+' = '+frac(fmt(m)+' g',fmt(M)+' g/mol')+' = <b>'+fmt(n)+' mol</b></div>'
+      : '<div class="math">Already in moles: <b>n = '+fmt(n)+' mol</b></div><div class="math muted small">For reference, m = n × M = '+fmt(n)+' mol × '+fmt(M)+' g/mol = '+fmt(m)+' g</div>';
+    return '<div class="calc"><div class="rowhead">'+dotK(k)+F(sp.f)+'</div>'+body+'</div>';
+  };
+  var step1Intro = S.unit==='g'
+    ? 'Equations compare moles, not grams, so convert each mass first using n = m ÷ M.'
+    : 'Your amounts are already in moles, so no conversion is needed.';
+
+  var maxX=Math.max(c.xA,c.xB,1e-12);
+  var rowCls=function(st){ return st==='lim'?'lim':st==='exc'?'exc':st==='tie'?'tie':'exc'; };
+  var batchRow=function(k,sp,n,x,st){
+    return '<div class="calc"><div class="batch"><div class="rowhead" style="margin:0">'+dotK(k)+F(sp.f)+'</div>'
+      +'<div class="math" style="text-align:right">'+frac(fmt(n)+' mol',sp.c)+' = <b>'+fmt(x)+'</b> '+badge(st)+'</div>'
+      +'<div class="bar"><i class="'+rowCls(st)+'" style="width:'+(x/maxX*100)+'%"></i></div></div></div>';
+  };
+  var needB=c.nA*b/a, needA=c.nB*a/b, tolOK=function(have,need){ return have>=need*(1-1e-9); };
+  var okB=tolOK(c.nB,needB), okA=tolOK(c.nA,needA);
+  var need=function(sp,other,n,needed,have,ok,num,den){
+    return '<div class="math small" style="margin-top:.5rem">To use up all the '+F(other.f)+', you need n('+F(sp.f)+') = '+fmt(n)+' × '+num+'/'+den+' = <b>'+fmt(needed)+' mol</b>. You have <b>'+fmt(have)+' mol</b> '
+      +(ok?'<span class="ok">✓ enough</span>':'<span class="short">✗ short by '+fmt(needed-have)+' mol</span>')+'</div>';
+  };
+  var verdict;
+  if(c.lim==='none') verdict='<div class="verdict none">Enter an amount for at least one reactant to see the comparison.</div>';
+  else if(c.lim==='both') verdict='<div class="verdict tie">Both reactants give the same value, so neither is in excess. The amounts match the equation exactly.</div>';
+  else {
+    var L=c.lim==='A'?A:B, sm=c.lim==='A'?c.xA:c.xB, lg=c.lim==='A'?c.xB:c.xA;
+    verdict='<div class="verdict lim">'+F(L.f)+' is the limiting reactant. Its value ('+fmt(sm)+') is smaller than the other ('+fmt(lg)+'), so it runs out first.</div>';
+  }
+
+  var cell=function(n,M){ return fmt(n)+' mol<div class="sub2">'+fmt(n*M)+' g</div>'; };
+  var pct=function(used,n){ var p=n>0?used/n*100:0; return trimFixed(p,1)+'% used'; };
+  var react=function(k,sp,n,M,used,rem,st){
+    return '<tr><td><span class="flex items-center gap-2">'+dotK(k)+'<b>'+F(sp.f)+'</b></span><div style="margin-top:.25rem">'+badge(st)+'</div></td>'
+      +'<td>'+cell(used,M)+'<div class="sub2">'+pct(used,n)+'</div></td><td>'+cell(rem,M)+'</td></tr>';
+  };
+  var prodRows=c.prods.map(function(p){
+    return '<tr><td><span class="flex items-center gap-2"><i class="dot dotP"></i><b>'+F(p.f)+'</b></span></td><td>'+p.c+' × '+fmt(c.xi)+'</td><td>'+cell(p.n,SPEC[p.f])+'</td></tr>';
+  }).join('');
+  var massIn=c.usedA*c.MA+c.usedB*c.MB, massOut=c.prods.reduce(function(s,p){return s+p.m;},0);
+  var massOK=Math.abs(massIn-massOut)<=1e-6*Math.max(1,massIn);
+  var summary = c.lim==='none' ? '' :
+    (c.lim==='both' ? 'Both reactants are used up completely.' :
+     F((c.lim==='A'?A:B).f)+' is used up (100%), so the reaction stops. '+F((c.lim==='A'?B:A).f)+' is the excess and some stays unreacted.');
+
+  $('math').innerHTML =
+    '<div class="mt-3"><div class="eq" aria-label="Balanced equation">'+eq+'</div>'
+    +'<p class="muted small mt-2">Highlighted numbers are the coefficients. A coefficient of 1 is normally left out; it is shown here so you can compare ratios.</p></div>'
+
+    +'<div class="step"><h3><span class="stepno">1</span>Convert to moles</h3><p class="muted small mt-1">'+step1Intro+'</p>'
+    +conv('A',A,c.nA,c.MA)+conv('B',B,c.nB,c.MB)+'</div>'
+
+    +'<div class="step"><h3><span class="stepno">2</span>Compare n ÷ coefficient</h3>'
+    +'<p class="muted small mt-1">The equation needs '+a+' mol '+F(A.f)+' for every '+b+' mol '+F(B.f)+' (a '+a+' : '+b+' ratio). Dividing each amount by its coefficient shows how many “batches” of the equation each reactant can supply.</p>'
+    +batchRow('A',A,c.nA,c.xA,S.status.A)+batchRow('B',B,c.nB,c.xB,S.status.B)
+    +need(B,A,c.nA,needB,c.nB,okB,b,a)+need(A,B,c.nB,needA,c.nA,okA,a,b)
+    +verdict+'</div>'
+
+    +'<div class="step"><h3><span class="stepno">3</span>Yield and leftovers</h3>'
+    +'<p class="muted small mt-1">The limiting reactant sets the number of batches that can happen: <b>'+fmt(c.xi)+'</b>.</p>'
+    +'<div class="tblwrap"><table class="tbl"><thead><tr><th>Reactant</th><th>Used</th><th>Left over</th></tr></thead><tbody>'
+    +react('A',A,c.nA,c.MA,c.usedA,c.remA,S.status.A)+react('B',B,c.nB,c.MB,c.usedB,c.remB,S.status.B)+'</tbody></table></div>'
+    +'<div class="tblwrap"><table class="tbl"><thead><tr><th>Product</th><th>Coefficient × batches</th><th>Formed</th></tr></thead><tbody>'+prodRows+'</tbody></table></div>'
+    +'<p class="small mt-3 math">Mass check: '+fmt(massIn)+' g of reactants used → '+fmt(massOut)+' g of product '+(massOK?'<span class="ok">✓ balanced</span>':'')+'</p>'
+    +(summary?'<p class="small mt-2">'+summary+'</p>':'')
+    +'</div>';
+}
+
+/* ---------- Inputs ---------- */
+function setFields(skip){
+  ['A','B'].forEach(function(k){
+    var sp=spOf(k), M=SPEC[sp.f], inMol=S.unit==='mol';
+    var sl=$('slider'+k), nm=$('num'+k), val=inMol?S.n[k]:S.n[k]*M;
+    sl.max = inMol ? 10 : trimFixed(10*M,2);
+    sl.step = inMol ? 0.05 : 0.1;
+    sl.value = val;
+    if(skip!==k) nm.value = trimFixed(val, inMol?3:2);
+    $('unit'+k).textContent = inMol ? 'mol' : 'g';
+    nm.setAttribute('aria-label','Amount of '+sp.f+' in '+(inMol?'moles':'grams'));
+    sl.setAttribute('aria-label','Amount of '+sp.f+' in '+(inMol?'moles':'grams'));
+  });
+}
+function labels(){
+  var R=cur();
+  $('fA').innerHTML=F(R.a.f); $('fB').innerHTML=F(R.b.f);
+  $('mmA').textContent='M = '+SPEC[R.a.f]+' g/mol'; $('mmB').textContent='M = '+SPEC[R.b.f]+' g/mol';
+}
+function changed(){
+  S.c=calc(); S.status=statusFrom(S.c);
+  if(S.phase!=='idle'){ particles=[]; groups=[]; flashes=[]; S.fused=[]; S.phase='idle'; }
+  syncParticles(); setBadges(); renderMath(); updateUI();
+}
+function onNum(k){
+  var el=$('num'+k), v=parseFloat(el.value);
+  if(!isFinite(v)||v<0) v=0;
+  var M=SPEC[spOf(k).f];
+  S.n[k]=Math.min(1000, S.unit==='mol'?v:v/M);
+  $('slider'+k).value=v;
+  changed();
+}
+function onSlider(k){
+  var v=parseFloat($('slider'+k).value)||0, M=SPEC[spOf(k).f];
+  S.n[k]=S.unit==='mol'?v:v/M;
+  $('num'+k).value=trimFixed(v, S.unit==='mol'?3:2);
+  changed();
+}
+function loadReaction(i){
+  S.rx=i; var R=cur();
+  S.n.A=R.def[0]; S.n.B=R.def[1];
+  particles=[]; groups=[]; flashes=[]; S.fused=[]; S.phase='idle';
+  labels(); setFields(); changed();
+}
+
+/* ---------- Init ---------- */
+(function init(){
+  var sel=$('rxSel');
+  REACTIONS.forEach(function(R,i){
+    var o=document.createElement('option'); o.value=i; o.textContent=R.ratio+' ratio: '+eqText(R); sel.appendChild(o);
+  });
+  sel.addEventListener('change',function(){ loadReaction(+sel.value); });
+  document.querySelectorAll('.seg button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      S.unit=btn.getAttribute('data-unit');
+      document.querySelectorAll('.seg button').forEach(function(b){ b.setAttribute('aria-checked', b===btn?'true':'false'); });
+      setFields(); renderMath();
+    });
+  });
+  ['A','B'].forEach(function(k){
+    $('num'+k).addEventListener('input',function(){ onNum(k); });
+    $('num'+k).addEventListener('blur',function(){ setFields(); });
+    $('slider'+k).addEventListener('input',function(){ onSlider(k); });
+  });
+  $('exact').addEventListener('click',function(){
+    var R=cur(); if(S.n.A<=0) S.n.A=1;
+    S.n.B=Math.min(1000,S.n.A*R.b.c/R.a.c);
+    setFields(); changed();
+  });
+  $('runBtn').addEventListener('click',function(){
+    if(S.phase==='idle') run(); else if(S.phase==='done') resetSim();
+  });
+  readTheme();
+  if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',readTheme); }
+  new MutationObserver(readTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  new ResizeObserver(function(){ resize(); }).observe($('canvasWrap'));
+  resize();
+  loadReaction(0);
+  requestAnimationFrame(function(t){ last=t; requestAnimationFrame(frame); });
+})();
+})();
+</script>
+</body>
+</html>
