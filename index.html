@@ -3,55 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interactive Science Simulations</title>
+  <title>Chemistry Simulations — Interactive Science</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-center items-center p-6">
-  
-  <div class="max-w-4xl w-full text-center space-y-8">
-    <header class="space-y-3">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-blue-400">Interactive Science Simulations</h1>
-      <p class="text-slate-400 text-lg max-w-xl mx-auto">
-        Explore interactive visual simulations designed for high school and introductory science concepts.
-      </p>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans p-6 md:p-12">
+
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Top Navigation & Header -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div>
+        <div class="flex items-center space-x-3">
+          <span class="text-3xl">🧪</span>
+          <h1 class="text-3xl font-extrabold text-emerald-400">Chemistry Simulations</h1>
+        </div>
+        <p class="text-slate-400 text-sm mt-1">
+          Interactive visual models for stoichiometry, solutions, and molecular reactions.
+        </p>
+      </div>
+
+      <!-- Navigation Link back to Hub -->
+      <a href="https://luckiphysics.github.io/" class="inline-flex items-center space-x-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-lg transition self-start sm:self-auto">
+        <span>&larr;</span>
+        <span>Back to Home Hub</span>
+      </a>
     </header>
 
-    <!-- Navigation Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+    <!-- Simulations Grid -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       
-      <!-- Physics Card -->
-      <a href="https://luckiphysics.github.io/PhysicsSims/" class="group bg-slate-800 border border-slate-700 hover:border-blue-500 rounded-2xl p-8 transition-all hover:-translate-y-1 shadow-xl flex flex-col items-center justify-between text-center">
+      <!-- Sim 1: Limiting Reactant Lab -->
+      <a href="Limiting%20Reactant%20Lab.html" class="group bg-slate-800 border border-slate-700 hover:border-emerald-500 rounded-xl p-6 transition-all hover:-translate-y-1 shadow-lg flex flex-col justify-between">
         <div>
-          <div class="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-3xl mb-4 mx-auto group-hover:scale-110 transition-transform">
-            ⚡
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50">
+              Stoichiometry
+            </span>
+            <span class="text-xs text-slate-500">Interactive Lab</span>
           </div>
-          <h2 class="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">Physics Simulations</h2>
-          <p class="text-slate-400 text-sm mt-2">
-            Explore kinematics, forces, energy, circuits, and wave phenomena.
+          <h2 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+            Limiting Reactant Lab
+          </h2>
+          <p class="text-slate-400 text-xs mt-2 leading-relaxed">
+            Interactive simulation to explore stoichiometry ratios, particle visual counts, and limiting reactants.
           </p>
         </div>
-        <span class="mt-6 inline-flex items-center text-sm font-semibold text-blue-400 group-hover:underline">
-          Launch Physics Sims &rarr;
-        </span>
+        <div class="mt-6 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs font-semibold text-emerald-400">
+          <span>Launch Simulation</span>
+          <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+        </div>
       </a>
 
-      <!-- Chemistry Card -->
-      <a href="https://luckiphysics.github.io/ChemistrySims/" class="group bg-slate-800 border border-slate-700 hover:border-emerald-500 rounded-2xl p-8 transition-all hover:-translate-y-1 shadow-xl flex flex-col items-center justify-between text-center">
+      <!-- Sim 2: Limiting Reactants V2 -->
+      <a href="LimitingReactantsV2.html" class="group bg-slate-800 border border-slate-700 hover:border-emerald-500 rounded-xl p-6 transition-all hover:-translate-y-1 shadow-lg flex flex-col justify-between">
         <div>
-          <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center text-3xl mb-4 mx-auto group-hover:scale-110 transition-transform">
-            🧪
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50">
+              Stoichiometry
+            </span>
+            <span class="text-xs text-slate-500">Version 2</span>
           </div>
-          <h2 class="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">Chemistry Simulations</h2>
-          <p class="text-slate-400 text-sm mt-2">
-            Explore stoichiometry, limiting reactants, solutions, and molecular reactions.
+          <h2 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+            Limiting Reactants (V2)
+          </h2>
+          <p class="text-slate-400 text-xs mt-2 leading-relaxed">
+            Alternative version of the limiting reactants simulator with updated visualization and calculations.
           </p>
         </div>
-        <span class="mt-6 inline-flex items-center text-sm font-semibold text-emerald-400 group-hover:underline">
-          Launch Chemistry Sims &rarr;
-        </span>
+        <div class="mt-6 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs font-semibold text-emerald-400">
+          <span>Launch Simulation</span>
+          <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+        </div>
       </a>
 
-    </div>
+      <!-- Sim 3: Placeholder for Future Sims -->
+      <div class="bg-slate-800/50 border border-slate-800 rounded-xl p-6 flex flex-col justify-between opacity-60">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-900 text-slate-500 border border-slate-800">
+              Solutions
+            </span>
+            <span class="text-xs text-slate-600">Coming Soon</span>
+          </div>
+          <h2 class="text-xl font-bold text-slate-400">
+            Molarity & Solutions
+          </h2>
+          <p class="text-slate-500 text-xs mt-2 leading-relaxed">
+            Visualize solute particles dissolving in solvent and adjust solute amount and volume.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-600">
+          <span>Under Development</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center pt-8 border-t border-slate-800 text-slate-500 text-xs">
+      <p>Interactive Science Simulations &bull; Hosted on GitHub Pages</p>
+    </footer>
+
   </div>
 
 </body>
